@@ -527,4 +527,12 @@
       <fileset dir="." includes="**/**/*.asc"/>
     </delete>
   </target>
+
+  <target name="tar" depends="jar" description="Source distribution">
+    <tar compression="gzip" longfile="gnu" destfile="${dist.dir}/${final.name}.tar.gz">
+      <tarfileset dir="${dist.dir}">
+        <include name="${final.name}.jar"/>
+      </tarfileset>
+    </tar>
+  </target>
 </project>
