@@ -36,6 +36,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.pigunit.PigTest;
+import org.apache.pig.test.Util;
 import org.apache.pig.tools.parameters.ParseException;
 
 public abstract class PigTests
@@ -148,7 +149,7 @@ public abstract class PigTests
       throw new RuntimeException("Found more JAR files than expected: " + sb.substring(0, sb.length()-1));
     }
     
-    return  userDir.getAbsolutePath() + "/" + files[0];
+    return  Util.encodeEscape(userDir.getAbsolutePath() + "/" + files[0]);
   }
   
   protected List<Tuple> getLinesForAlias(PigTest test, String alias) throws IOException, ParseException
