@@ -37,7 +37,7 @@
         <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="${hadoop.version}" conf="hadoop2->default"/>
 
         <!-- dependencies only needed for testing and are not listed in the pom -->
-        <dependency org="org.apache.pig" name="pigunit" rev="${pig.version}" conf="test->default"/>
+        <dependency org="org.apache.pig" name="pigunit" rev="${pig.version}" conf="test->master"/>
         <!-- log4j, jline, and anltr are needed for pigunit to work -->
         <dependency org="log4j" name="log4j" rev="${log4j.version}" conf="test->default"/>
         <dependency org="jline" name="jline" rev="${jline.version}" conf="test->default"/>
