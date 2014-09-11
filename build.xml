@@ -74,6 +74,13 @@
 	<property name="ivy.settings.file" value="ivysettings.xml" />
 	<property name="maven.jar" location="${ivy.jar.dir}/maven-ant-tasks-${maven.jar.version}.jar"/>
 
+  <condition property="hadoopversion" value="2" else="1">
+    <scriptcondition language="javascript">
+      var hv = project.getProperty("hadoop.version")
+      self.setValue(hv.startsWith("0.23.") || hv.startsWith("2."))
+    </scriptcondition>
+  </condition>
+
   <basename property="basedirname" file="${basedir}"/>
   
   <target name="all" depends="clean, jar, sources-jar, javadoc-jar" description="Build all artifacts." />
@@ -131,7 +138,8 @@
   </target>
   
   <target name="ivy-resolve" depends="ivy-taskdef" description="retrieve dependencies with ivy">
-    <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[type]-[revision].[ext]"/>
+    <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[type]-[revision].[ext]"
+      conf="common,packaged,hadoop,test,tools"/>
   </target>
 
   <target name="check-licenses" description="checks that source files have license header">

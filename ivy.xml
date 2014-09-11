@@ -1,9 +1,11 @@
-<ivy-module version="2.0">
+<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
     <info organisation="datafu" module="datafu"/>
     <configurations>
       <conf name="common" description="common libraries" />
       <conf name="packaged" description="packaged libraries" />
-      <conf name="hadoop" description="hadoop/pig libraries" />
+      <conf name="hadoop1" description="hadoop/pig libraries for hadoop 1"/>
+      <conf name="hadoop2" description="hadoop/pig libraries for hadoop 2"/>
+      <conf name="hadoop" extends="hadoop${hadoopversion}" description="hadoop/pig libraries" />
       <conf name="test" description="test libraries" />
       <conf name="tools" description="tools libraries" />
     </configurations>
@@ -23,8 +25,16 @@
 
         <!-- hadoop and pig dependencies required for building but which are not included in the pom because
              we don't want to require a specific version -->
-        <dependency org="org.apache.pig" name="pig" rev="${pig.version}" conf="hadoop->default"/>
-        <dependency org="org.apache.hadoop" name="hadoop-core" rev="${hadoop.version}" conf="hadoop->default"/>
+        <dependency org="org.apache.pig" name="pig" rev="${pig.version}" conf="hadoop1->default"/>
+        <dependency org="org.apache.hadoop" name="hadoop-core" rev="${hadoop.version}" conf="hadoop1->default"/>
+
+        <dependency org="org.apache.pig" name="pig" rev="${pig.version}" conf="hadoop2->default">
+          <artifact name="pig" ext="jar" m:classifier="h2" />
+        </dependency>
+
+        <dependency org="org.apache.hadoop" name="hadoop-common" rev="${hadoop.version}" conf="hadoop2->default"/>
+        <dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="${hadoop.version}" conf="hadoop2->default"/>
+        <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="${hadoop.version}" conf="hadoop2->default"/>
 
         <!-- dependencies only needed for testing and are not listed in the pom -->
         <dependency org="org.apache.pig" name="pigunit" rev="${pig.version}" conf="test->default"/>
