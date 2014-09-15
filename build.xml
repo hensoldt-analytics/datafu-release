@@ -13,7 +13,7 @@
   <property name="datafu.version" value="1.2.0" />
   <property name="version" value="${datafu.version}-SNAPSHOT" />
   <property name="final.name" value="${name}-${version}" />
-  
+  <property name="package.buildroot" value="/tmp/datafu_package_build_${user.name}"/>
   <!-- maven snapshots and staging repository id and url -->
   <property name="maven-snapshots-repository-id" value="sonatype-nexus-snapshots" />
   <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots" />
@@ -535,4 +535,69 @@
       </tarfileset>
     </tar>
   </target>
+
+  <target name="zip" depends="jar" description="Source distribution">
+        <zip destfile="${dist.dir}/${final.name}.zip">
+            <zipfileset dir="${dist.dir}/tar/">
+                <include name="${final.name}*.jar" />
+            </zipfileset>
+        </zip>
+    </target>
+
+    <!-- builds the binary winpkg, no sources or docs -->
+    <target name="bin-winpkg" depends="zip,just-bin-winpkg" />
+
+    <!-- builds the full win pkg, with sources and docs -->
+    <target name="winpkg" depends="zip,just-winpkg" />
+
+    <!--
+    bin-winpkg will build the binary, excluding sources
+    -->
+    <target name="just-bin-winpkg" depends="just-winpkg-helper" >
+        <copy file="${dist.dir}/${final.name}.zip" tofile="${package.buildroot}/resources/${final.name}.zip" />
+        <zip destfile="${dist.dir}/${final.name}.winpkg.zip">
+             <zipfileset dir="${package.buildroot}">
+              <include name="**" />
+             </zipfileset>
+        </zip>
+    </target>
+
+    <!--
+    winpkg will build the full release package, include docs
+    -->
+    <target name="just-winpkg" depends="just-winpkg-helper" >
+        <copy file="${dist.dir}/${final.name}.zip" todir="${package.buildroot}/resources" />
+        <zip destfile="${dist.dir}/${final.name}.winpkg.zip">
+             <zipfileset dir="${package.buildroot}">
+              <include name="**" />
+             </zipfileset>
+        </zip>
+    </target>
+
+    <target name="just-winpkg-helper" description="Package for Windows installation">
+        <copy todir="${package.buildroot}/scripts">
+          <fileset dir="${src.dir}/packages/win/scripts">
+            <include name="**" />
+          </fileset>
+          <filterchain>
+            <replacetokens>
+              <token key="final.name" value="${final.name}" />
+              <token key="build.arch" value="${os.arch}" />
+              <token key="version" value="${version}" />
+              <token key="package.release" value="${package.release}" />
+              <token key="package.zip" value="${final.name}.zip" />
+            </replacetokens>
+          </filterchain>
+        </copy>
+        <copy todir="${package.buildroot}/resources">
+          <fileset dir="${src.dir}/packages/win/resources">
+            <include name="**" />
+          </fileset>
+        </copy>
+        <copy todir="${package.buildroot}/template">
+          <fileset dir="${src.dir}/packages/win/template">
+            <include name="**" />
+          </fileset>
+        </copy>
+    </target>
 </project>
