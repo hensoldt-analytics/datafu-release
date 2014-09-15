@@ -1,7 +1,17 @@
 <ivysettings>
 <settings defaultResolver="ivyrep"/>
+
+  <property name="repo.dir" value="${user.home}/.m2/repository" override="false"/>
+
+
 <resolvers>
+  <filesystem name="fs" m2compatible="true">
+       <artifact pattern="${repo.dir}/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).[ext]"/>
+       <ivy pattern="${repo.dir}/[organisation]/[module]/[revision]/[module]-[revision].pom"/>
+    </filesystem>
+
   <chain name="ivyrep" returnFirst="true">
+    <resolver ref="fs" />
     <ibiblio name="central" root="${mvnrepo}" m2compatible="true"/>
     <ibiblio name="ibiblio" m2compatible="true"/>
   </chain>
