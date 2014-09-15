@@ -538,7 +538,7 @@
 
   <target name="zip" depends="jar" description="Source distribution">
         <zip destfile="${dist.dir}/${final.name}.zip">
-            <zipfileset dir="${dist.dir}/tar/">
+            <zipfileset dir="${dist.dir}">
                 <include name="${final.name}*.jar" />
             </zipfileset>
         </zip>
