@@ -556,7 +556,7 @@
     </delete>
   </target>
 
-  <target name="tar" depends="jar" description="Source distribution">
+  <target name="tar" depends="mvn-install" description="Source distribution">
     <tar compression="gzip" longfile="gnu" destfile="${dist.dir}/${final.name}.tar.gz">
       <tarfileset dir="${dist.dir}">
         <include name="${final.name}.jar"/>
@@ -564,7 +564,7 @@
     </tar>
   </target>
 
-  <target name="zip" depends="jar" description="Source distribution">
+  <target name="zip" depends="mvn-install" description="Source distribution">
         <zip destfile="${dist.dir}/${final.name}.zip">
             <zipfileset dir="${dist.dir}">
                 <include name="${final.name}*.jar" />
