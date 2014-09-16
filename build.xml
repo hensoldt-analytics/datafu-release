@@ -19,7 +19,11 @@
   <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots" />
   <property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
   <property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2" />
-  
+  <property name="ant-task.version" value="2.0.10" />
+  <property name="ivy.dir" location="ivy" />
+  <property name="mvnrepo" value="http://repo2.maven.org/maven2"/>
+  <property name="ant_task.jar" location="${ivy.dir}/maven-ant-tasks-${ant-task.version}.jar"/>
+  <property name="ant_task_repo_url"   value="${mvnrepo}/org/apache/maven/maven-ant-tasks/${ant-task.version}/maven-ant-tasks-${ant-task.version}.jar"/> 
   <!-- directories -->
   <property name="src.dir" value="${basedir}/src" />
   <property name="java.dir" value="${src.dir}/java" />
@@ -469,6 +473,17 @@
       </fileset>
     </jar>
   </target>
+
+  <target name="ant-task-download" description="To download mvn-ant-task" unless="offline">
+       <get src="${ant_task_repo_url}" dest="${ant_task.jar}" usetimestamp="true"/>
+    </target>
+
+    <target name="mvn-taskdef" depends="ant-task-download">
+      <path id="mvn-ant-task.classpath" path="${ant_task.jar}"/>
+      <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+          uri="urn:maven-artifact-ant"
+          classpathref="mvn-ant-task.classpath"/>
+    </target>
      
   <target name="deploy" depends="clean,jar,sources-jar,javadoc-jar,set-version,sign">
     <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
@@ -487,6 +502,19 @@
     	<attach file="${output.jarfile.javadoc}.asc" type="jar.asc" classifier="javadoc" />
     	<attach file="${output.jarfile.javadoc}" classifier="javadoc" />
     </artifact:deploy>
+ </target>
+
+ <target name="mvn-install" depends="clean,jar,sources-jar,javadoc-jar,set-version,mvn-taskdef"
+         description="To install datafu to local filesystem's m2 cache">
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+         uri="antlib:org.apache.maven.artifact.ant"
+         classpathref="plugin-classpath" />
+    <artifact:pom file="${datafu.pomfile}" id="datafu-pom"/>
+    <artifact:install file="${output.jarfile}">
+        <pom refid="datafu-pom"/>
+        <attach file="${output.jarfile.sources}" classifier="sources" />
+        <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
+    </artifact:install>
  </target>
  
  <target name="sign" depends="clean-sign">
@@ -515,7 +543,7 @@
     <copy file="${datafu.pomfile.template}" tofile="${datafu.pomfile}"/>
     <replaceregexp byline="true">
       <regexp pattern="@version"/>
-      <substitution expression="${datafu.version}"/>
+      <substitution expression="${version}"/>
       <fileset dir="${ivy.jar.dir}">
         <include name="${datafu.pom.name}"/>
       </fileset>
