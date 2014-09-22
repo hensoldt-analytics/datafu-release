@@ -2,14 +2,16 @@
   <settings defaultResolver="ivyrep"/>
   <property name="repo.dir" value="${user.home}/.m2/repository" override="false"/>
   <property name="maven2.pattern" value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).[ext]"/>
+  <property name="maven2.pom.pattern" value="[organisation]/[module]/[revision]/[module]-[revision].pom"/>
 
   <resolvers>
-    <dual name="ivyrep" >
+    <chain name="ivyrep" dual="true">
       <filesystem name="fs" m2compatible="true">
-          <ivy pattern="${repo.dir}/${maven2.pattern}"/>
+          <ivy pattern="${repo.dir}/${maven2.pom.pattern}"/>
+          <artifact pattern="${repo.dir}/${maven2.pattern}"/>
       </filesystem>
       <ibiblio name="central" root="${mvnrepo}" m2compatible="true"/>
-    </dual>
+    </chain>
 
     <filesystem name="tools" local="true">
       <artifact pattern="${java.home}/lib/tools.[type]" />
