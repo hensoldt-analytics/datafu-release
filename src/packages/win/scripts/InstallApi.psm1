@@ -33,7 +33,6 @@ $FinalName = "@final.name@"
 ###     component: Component to be installed, it should be pig
 ###     nodeInstallRoot: Target install folder (for example "C:\Hadoop")
 ###     serviceCredential: Credential object used for service creation
-###     role: pig
 ###
 ###############################################################################
 function Install(
@@ -43,15 +42,9 @@ function Install(
     [String]
     [Parameter( Position=1, Mandatory=$true )]
     $nodeInstallRoot,
-    [System.Management.Automation.PSCredential]
-    [Parameter( Position=2, Mandatory=$false )]
-    $serviceCredential,
-    [String]
-    [Parameter( Position=3, Mandatory=$false )]
-    $role
     )
 {
-    if ( $component -eq "pig" )
+    if ( $component -eq "datafu" )
     {
         $HDP_INSTALL_PATH, $HDP_RESOURCES_DIR = Initialize-InstallationEnv $scriptDir "$FinalName.winpkg.log"
         Write-Log "Checking the JAVA Installation."
@@ -72,7 +65,7 @@ function Install(
 	    ### $pigInstallPath: the name of the folder containing the application, after unzipping
 	    $pigInstallPath = Join-Path $nodeInstallRoot $FinalName
 
-	    Write-Log "Installing Apache Pig @final.name@ to $pigInstallPath"
+	    Write-Log "Installing Apache Datafu @final.name@ to $datafuInstallPath"
 
         ### Create Node Install Root directory
         if( -not (Test-Path "$nodeInstallRoot"))
@@ -84,9 +77,9 @@ function Install(
 
 
         ###
-        ###  Unzip Hadoop distribution from compressed archive
+        ###  Unzip Datafu distribution from compressed archive
         ###
-        Write-Log "Extracting $FinalName.zip to $pigInstallPath"
+        Write-Log "Extracting $FinalName.zip to $datafuInstallPath"
         if ( Test-Path ENV:UNZIP_CMD )
         {
             ### Use external unzip command if given
@@ -105,22 +98,16 @@ function Install(
         }
 
         ###
-        ### Set PIG_HOME environment variable
+        ### Set DATAFU_HOME environment variable
         ###
-        Write-Log "Setting the PIG_HOME environment variable at machine scope to `"$pigInstallPath`""
-        [Environment]::SetEnvironmentVariable("PIG_HOME", $pigInstallPath, [EnvironmentVariableTarget]::Machine)
-        $ENV:PIG_HOME = "$pigInstallPath"
-		###
-        ### Change pig properties
-		###
-		$conf_file = Join-Path $ENV:PIG_HOME "conf\pig.properties"
-		Write-log "$env:HADOOP_NODE_INSTALL_ROOT"
-		$path  = Join-Path $env:HADOOP_NODE_INSTALL_ROOT "hcatalog-@hcat.version@\\bin\\hcat.py"
-		(Get-Content $conf_file) | Foreach-Object {
-	    $_ -replace "hcat.bin=/usr/local/hcat/bin/hcat", "hcat.bin=$path"
-	    } | Set-Content $conf_file
-
-        Write-Log "Finished installing Apache Pig"
+        Write-Log "Setting the DATAFU_HOME environment variable at machine scope to `"$datafuInstallPath`""
+        [Environment]::SetEnvironmentVariable("DATAFU_HOME", $data:fuInstallPath, [EnvironmentVariableTarget]::Machine)
+        $ENV:DATAFU_HOME = "$datafuInstallPath"
+	
+	## copying datafu*.jar to PIG_HOME/lib/
+        Copy-Item "$ENV:DATAFU_HOME\*.jar $ENV:PIG_HOME\lib\ " 
+        
+        Write-Log "Finished installing Apache Datafu"
     }
     else
     {
@@ -130,7 +117,7 @@ function Install(
 
 ###############################################################################
 ###
-### Uninstalls Pig component.
+### Uninstalls Datafu component.
 ###
 ### Arguments:
 ###     component: Component to be uninstalled.
@@ -146,15 +133,15 @@ function Uninstall(
     $nodeInstallRoot
     )
 {
-    if ( $component -eq "pig" )
+    if ( $component -eq "datafu" )
     {
         $HDP_INSTALL_PATH, $HDP_RESOURCES_DIR = Initialize-InstallationEnv $scriptDir "$FinalName.winpkg.log"
 
-        Write-Log "Uninstalling Apache Pig $FinalName"
+        Write-Log "Uninstalling Apache Datafu $FinalName"
         $pigInstallPath = Join-Path $nodeInstallRoot $FinalName
 
-        ### If Hadoop Core root does not exist exit early
-        if ( -not (Test-Path $pigInstallPath) )
+        ### If Datafu Core root does not exist exit early
+        if ( -not (Test-Path $datafuInstallPath) )
         {
             return
         }
@@ -162,14 +149,14 @@ function Uninstall(
         ###
         ### Delete install dir
         ###
-        $cmd = "rd /s /q `"$pigInstallPath`""
+        $cmd = "rd /s /q `"$datafuInstallPath`""
         Invoke-Cmd $cmd
 
-        ### Removing PIG_HOME environment variable
-        Write-Log "Removing the PIG_HOME environment variable"
-        [Environment]::SetEnvironmentVariable( "PIG_HOME", $null, [EnvironmentVariableTarget]::Machine )
+        ### Removing Datafu_HOME environment variable
+        Write-Log "Removing the DATAFU_HOME environment variable"
+        [Environment]::SetEnvironmentVariable( "DATAFU_HOME", $null, [EnvironmentVariableTarget]::Machine )
 
-        Write-Log "Successfully uninstalled Pig"
+        Write-Log "Successfully uninstalled DATAFU"
 
     }
     else
@@ -218,72 +205,9 @@ function Configure(
     }
 }
 
-###############################################################################
-###
-### Start component services.
-###
-### Arguments:
-###     component: Component name
-###     roles: List of space separated service to start
-###
-###############################################################################
-function StartService(
-    [String]
-    [Parameter( Position=0, Mandatory=$true )]
-    $component,
-    [String]
-    [Parameter( Position=1, Mandatory=$true )]
-    $roles
-    )
-{
-    Write-Log "Starting `"$component`" `"$roles`" services"
-
-    if ( $component -eq "pig" )
-    {
-        Write-Log "StartService: Pig does not have any services"
-    }
-    else
-    {
-        throw "StartService: Unsupported compoment argument."
-    }
-}
-
-###############################################################################
-###
-### Stop component services.
-###
-### Arguments:
-###     component: Component name
-###     roles: List of space separated service to stop
-###
-###############################################################################
-function StopService(
-    [String]
-    [Parameter( Position=0, Mandatory=$true )]
-    $component,
-    [String]
-    [Parameter( Position=1, Mandatory=$true )]
-    $roles
-    )
-{
-    Write-Log "Stopping `"$component`" `"$roles`" services"
-
-    if ( $component -eq "pig" )
-    {
-        Write-Log "StopService: Pig does not have any services"
-    }
-    else
-    {
-        throw "StartService: Unsupported compoment argument."
-    }
-}
-
-
 ###
 ### Public API
 ###
 Export-ModuleMember -Function Install
 Export-ModuleMember -Function Uninstall
 Export-ModuleMember -Function Configure
-Export-ModuleMember -Function StartService
-Export-ModuleMember -Function StopService

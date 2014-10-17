@@ -16,15 +16,15 @@
 
 function Main( $scriptDir )
 {
-    Write-Log "Uninstalling Apache Pig @final.name@"
-    Uninstall "pig" $ENV:HADOOP_NODE_INSTALL_ROOT
-    Write-Log "Finished Uninstalling Apache Pig"
+    Write-Log "Uninstalling Apache Datafu @final.name@"
+    Uninstall "datafu" $ENV:HADOOP_NODE_INSTALL_ROOT
+    Write-Log "Finished Uninstalling Apache Datafu"
 }
 
 try
 {
     $scriptDir = Resolve-Path (Split-Path $MyInvocation.MyCommand.Path)
-    $utilsModule = Import-Module -Name "$scriptDir\..\resources\Winpkg.Utils.psm1" -ArgumentList ("PIG") -PassThru
+    $utilsModule = Import-Module -Name "$scriptDir\..\resources\Winpkg.Utils.psm1" -ArgumentList ("DATAFU") -PassThru
     $apiModule = Import-Module -Name "$scriptDir\InstallApi.psm1" -PassThru
     Main $scriptDir
 }
