@@ -27,10 +27,10 @@ $FinalName = "@final.name@"
 
 ###############################################################################
 ###
-### Installs Pig component.
+### Installs Datafu component.
 ###
 ### Arguments:
-###     component: Component to be installed, it should be pig
+###     component: Component to be installed, it should be Datafu
 ###     nodeInstallRoot: Target install folder (for example "C:\Hadoop")
 ###     serviceCredential: Credential object used for service creation
 ###
@@ -62,8 +62,8 @@ function Install(
           throw "Install: HADOOP_HOME not set properly; $ENV:HADOOP_HOME\bin\winutils.exe does not exist."
         }
 
-	    ### $pigInstallPath: the name of the folder containing the application, after unzipping
-	    $pigInstallPath = Join-Path $nodeInstallRoot $FinalName
+	    ### $datafuInstallPath: the name of the folder containing the application, after unzipping
+	    $datafuInstallPath = Join-Path $nodeInstallRoot $FinalName
 
 	    Write-Log "Installing Apache Datafu @final.name@ to $datafuInstallPath"
 
@@ -101,11 +101,12 @@ function Install(
         ### Set DATAFU_HOME environment variable
         ###
         Write-Log "Setting the DATAFU_HOME environment variable at machine scope to `"$datafuInstallPath`""
-        [Environment]::SetEnvironmentVariable("DATAFU_HOME", $data:fuInstallPath, [EnvironmentVariableTarget]::Machine)
+        [Environment]::SetEnvironmentVariable("DATAFU_HOME", $datafuInstallPath, [EnvironmentVariableTarget]::Machine)
         $ENV:DATAFU_HOME = "$datafuInstallPath"
 	
-	## copying datafu*.jar to PIG_HOME/lib/
-        Copy-Item "$ENV:DATAFU_HOME\*.jar $ENV:PIG_HOME\lib\ " 
+	    ### Copying datafu*.jar to PIG_HOME/lib/
+        Write-Log "Copying datafu*.jar to PIG_HOME/lib/"
+        Copy-Item -Path "$datafuInstallPath\*.jar" -Destination "$ENV:PIG_HOME\lib" -Force -ErrorAction Stop
         
         Write-Log "Finished installing Apache Datafu"
     }
@@ -138,7 +139,7 @@ function Uninstall(
         $HDP_INSTALL_PATH, $HDP_RESOURCES_DIR = Initialize-InstallationEnv $scriptDir "$FinalName.winpkg.log"
 
         Write-Log "Uninstalling Apache Datafu $FinalName"
-        $pigInstallPath = Join-Path $nodeInstallRoot $FinalName
+        $datafuInstallPath = Join-Path $nodeInstallRoot $FinalName
 
         ### If Datafu Core root does not exist exit early
         if ( -not (Test-Path $datafuInstallPath) )
@@ -167,10 +168,10 @@ function Uninstall(
 
 ###############################################################################
 ###
-### Alters the configuration of the Pig component.
+### Alters the configuration of the Datafu component.
 ###
 ### Arguments:
-###     component: Component to be configured, it should be "pig"
+###     component: Component to be configured, it should be "datafu"
 ###     nodeInstallRoot: Target install folder (for example "C:\Hadoop")
 ###     serviceCredential: Credential object used for service creation
 ###     configs:
@@ -195,9 +196,9 @@ function Configure(
     )
 {
 
-    if ( $component -eq "pig" )
+    if ( $component -eq "datafu" )
     {
-        Write-Log "Configure: Pig does not have any configurations"
+        Write-Log "Configure: Datafu does not have any configurations"
     }
     else
     {
