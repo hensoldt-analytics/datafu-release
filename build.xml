@@ -412,6 +412,7 @@
     <testng classpathref="run-tests-classpath" methods="${test.methods}"
             outputDir="${report.dir}" verbose="2" haltonfailure="true" haltonskipped="true">
       <jvmarg value="-Xmx1G" />
+      <jvmarg value="-Djava.library.path=${hadoop.root}\bin" />
       <sysproperty key="datafu.jar.dir" value="${dist.dir}" />
       <classfileset dir="${pigtestclasses.dir}" includes="${testclasses.pattern}" />
     </testng>
