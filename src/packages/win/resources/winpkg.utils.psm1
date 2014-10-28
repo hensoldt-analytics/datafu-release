@@ -91,6 +91,18 @@ function Invoke-Cmd ($command)
 	return $out
 }
 
+function Invoke-CmdChk ($command)
+{
+    Write-Log $command
+    $out = cmd.exe /C "$command" 2>&1
+    $out | ForEach-Object { Write-LogRecord "CMD" $_ }
+    if (-not ($LastExitCode  -eq 0))
+    {
+        throw "Command `"$out`" failed with exit code $LastExitCode "
+    }
+    return $out
+}
+
 function Invoke-Ps ($command)
 {
 	Write-Log $command
@@ -241,8 +253,10 @@ Export-ModuleMember -Function Copy-XmlTemplate
 Export-ModuleMember -Function Initialize-WinpkgEnv
 Export-ModuleMember -Function Initialize-InstallationEnv
 Export-ModuleMember -Function Invoke-Cmd
+Export-ModuleMember -Function Invoke-CmdChk
 Export-ModuleMember -Function Invoke-Ps
 Export-ModuleMember -Function Invoke-Winpkg
 Export-ModuleMember -Function Set-ServiceAcl
 Export-ModuleMember -Function Test-JavaHome
 Export-ModuleMember -Function Write-Log
+Export-ModuleMember -Function Write-LogRecord

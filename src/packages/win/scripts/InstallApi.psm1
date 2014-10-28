@@ -68,10 +68,10 @@ function Install(
 	    Write-Log "Installing Apache Datafu @final.name@ to $datafuInstallPath"
 
         ### Create Node Install Root directory
-        if( -not (Test-Path "$nodeInstallRoot"))
+        if( -not (Test-Path "$datafuInstallPath"))
         {
-            Write-Log "Creating Node Install Root directory: `"$nodeInstallRoot`""
-            $cmd = "mkdir `"$nodeInstallRoot`""
+            Write-Log "Creating Node Install Root directory: `"$datafuInstallPath`""
+            $cmd = "mkdir `"$datafuInstallPath`""
             Invoke-CmdChk $cmd
         }
 
@@ -84,7 +84,7 @@ function Install(
         {
             ### Use external unzip command if given
             $unzipExpr = $ENV:UNZIP_CMD.Replace("@SRC", "`"$HDP_RESOURCES_DIR\$FinalName.zip`"")
-            $unzipExpr = $unzipExpr.Replace("@DEST", "`"$nodeInstallRoot`"")
+            $unzipExpr = $unzipExpr.Replace("@DEST", "`"$datafuInstallPath`"")
             ### We ignore the error code of the unzip command for now to be
             ### consistent with prior behavior.
             Invoke-Ps $unzipExpr
@@ -93,9 +93,10 @@ function Install(
         {
             $shellApplication = new-object -com shell.application
             $zipPackage = $shellApplication.NameSpace("$HDP_RESOURCES_DIR\$FinalName.zip")
-            $destinationFolder = $shellApplication.NameSpace($nodeInstallRoot)
+            $destinationFolder = $shellApplication.NameSpace($datafuInstallPath)
             $destinationFolder.CopyHere($zipPackage.Items(), 20)
         }
+
 
         ###
         ### Set DATAFU_HOME environment variable
@@ -104,10 +105,11 @@ function Install(
         [Environment]::SetEnvironmentVariable("DATAFU_HOME", $datafuInstallPath, [EnvironmentVariableTarget]::Machine)
         $ENV:DATAFU_HOME = "$datafuInstallPath"
 	
-	    ### Copying datafu*.jar to PIG_HOME/lib/
-        Write-Log "Copying datafu*.jar to PIG_HOME/lib/"
-        Copy-Item -Path "$datafuInstallPath\*.jar" -Destination "$ENV:PIG_HOME\lib" -Force -ErrorAction Stop
-        
+        ### Creating symlink to main datafu*.jar in PIG_HOME/lib/
+        Write-Log "Creating symlink to main datafu*.jar in PIG_HOME/lib/"
+        $cmd = "mklink /d $ENV:PIG_HOME\lib\$finalname.jar $datafuInstallPath\$finalname.jar"
+        Invoke-CmdChk $cmd
+
         Write-Log "Finished installing Apache Datafu"
     }
     else
