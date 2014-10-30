@@ -41,7 +41,7 @@ function Install(
     $component,
     [String]
     [Parameter( Position=1, Mandatory=$true )]
-    $nodeInstallRoot,
+    $nodeInstallRoot
     )
 {
     if ( $component -eq "datafu" )
