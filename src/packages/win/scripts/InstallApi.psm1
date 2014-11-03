@@ -107,7 +107,7 @@ function Install(
 	
         ### Creating symlink to main datafu*.jar in PIG_HOME/lib/
         Write-Log "Creating symlink to main datafu*.jar in PIG_HOME/lib/"
-        $cmd = "mklink /d $ENV:PIG_HOME\lib\$finalname.jar $datafuInstallPath\$finalname.jar"
+        $cmd = "mklink $ENV:PIG_HOME\lib\$finalname.jar $datafuInstallPath\$finalname.jar"
         Invoke-CmdChk $cmd
 
         Write-Log "Finished installing Apache Datafu"
