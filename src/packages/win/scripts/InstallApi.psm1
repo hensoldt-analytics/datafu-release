@@ -33,6 +33,7 @@ $FinalName = "@final.name@"
 ###     component: Component to be installed, it should be Datafu
 ###     nodeInstallRoot: Target install folder (for example "C:\Hadoop")
 ###     serviceCredential: Credential object used for service creation
+###	role: datafu
 ###
 ###############################################################################
 function Install(
@@ -41,7 +42,13 @@ function Install(
     $component,
     [String]
     [Parameter( Position=1, Mandatory=$true )]
-    $nodeInstallRoot
+    $nodeInstallRoot,
+    [System.Management.Automation.PSCredential]
+    [Parameter( Position=2, Mandatory=$false )]
+    $serviceCredential,
+    [String]
+    [Parameter( Position=3, Mandatory=$false )]
+    $role
     )
 {
     if ( $component -eq "datafu" )
