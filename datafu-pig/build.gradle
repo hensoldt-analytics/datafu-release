@@ -22,7 +22,7 @@ apply plugin: 'gradle-autojar'
 apply plugin: 'download-task'
 
 // append "-incubating" while still in the incubating process
-archivesBaseName = 'datafu-pig-incubating'
+archivesBaseName = 'datafu-pig'
 
 import groovy.xml.MarkupBuilder
 
